@@ -1,0 +1,13 @@
+USE master;
+
+CREATE DATABASE Datawarehouse;
+
+USE Datawarehouse;
+
+--creating schema for bronze silver and gold layer
+==================================================
+CREATE SCHEMA bronze;
+GO
+CREATE SCHEMA silver;
+GO
+CREATE SCHEMA gold;
