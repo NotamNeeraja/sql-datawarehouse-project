@@ -1,0 +1,94 @@
+
+
+---I have integrated 3 tables and also checked for duplicates
+--[silver].[crm_cust_info] [silver].[erp_cust_az12][silver].[erp_loc_a101]
+SELECT  cst_id,COUNT(*)
+FROM (SELECT 
+     ci.[cst_id]
+      ,ci.[cst_key]
+      ,ci.[cst_firstname]
+      ,ci.[cst_lastname]
+      ,ci.[cst_martial_status]
+      ,ci.[cst_gndr]
+      ,ci.[cst_create_Date]
+	  ,ca.gen,
+	  ca.bdate,
+	  la.cntry
+FROM silver.crm_cust_info ci 
+LEFT JOIN silver.erp_cust_az12 ca
+ON ci.cst_key=ca.cid
+LEFT JOIN silver.erp_loc_a101 la
+ON ci.cst_key=La.cid)T
+GROUP BY cst_id HAVING COUNT(*)>1;
+
+
+---now we have  2 gender columns  lets remove them
+--check them
+SELECT 
+   DISTINCT
+    ci.cst_gndr,
+	ca.gen
+FROM silver.crm_cust_info ci 
+LEFT JOIN silver.erp_cust_az12 ca
+ON ci.cst_key=ca.cid
+LEFT JOIN silver.erp_loc_a101 la
+ON ci.cst_key=la.cid
+ORDER BY 1,2
+
+--to make values from both columns same we use case when then end
+SELECT 
+     cst_gndr,
+	 gen,
+	 case when cst_gndr!='n/a' THEN cst_gndr
+	 ELSE COALESCE(gen,'n/a')
+	 END new_gndr--replace those 2 columns with is new_gndr
+FROM silver.crm_cust_info ci 
+LEFT JOIN silver.erp_cust_az12 ca
+ON ci.cst_key=ca.cid
+LEFT JOIN silver.erp_loc_a101 la
+ON ci.cst_key=la.cid
+--=================================================================
+--combine products tables
+--here we are focusing on cuurent data so 
+--if endate is null then it is current data information
+--Also check for data quality
+SELECT COUNT(*) FROM
+(SELECT
+     [prd_id]
+      ,[cat_id]
+      ,[prd_key]
+      ,[prd_nm]
+      ,[prd_cost]
+      ,[prd_line]
+      ,[prd_start_5dt]
+	  ,pc.cat
+	  ,pc.subcat,pc.maintenance
+FROM [silver].[crm_prd_info] pn
+LEFT JOIN   [silver].[erp_cat_giv2] pc
+ON pn.cat_id=pc.id
+WHERE prd_end_dt IS NULL)t
+GROUP BY prd_id 
+HAVING COUNT(*)>1
+
+--=======================================================================
+SELECT
+       sls_ord_num AS order_num
+	   ,pr.product_key 
+	   ,cu.customer_key
+      ,sls_order_dt AS order_date
+      ,sls_ship_dt AS shipping_date
+      ,sls_due_dt AS due_date
+      ,sls_sales AS sales_Amount
+      ,sls_quantity AS quantity
+      ,sls_price AS price
+FROM [silver].[crm_sales_details] sd
+LEFT JOIN [gold].[dim_products] pr
+ON sd.sls_prd_key=pr.product_number
+LEFT JOIN [gold].[dim_customers] cu
+ON sd.sls_cust_id=cu.customer_id
+
+
+
+
+
+
