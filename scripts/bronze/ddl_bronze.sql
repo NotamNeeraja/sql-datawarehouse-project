@@ -1,17 +1,5 @@
 
- --USE master;
-
---CREATE DATABASE Datawarehouse;
-
-USE Datawarehouse;
-
---creating schema for bronze silver and gold layer
---CREATE SCHEMA bronze;
---GO
---CREATE SCHEMA silver;
---GO
---CREATE SCHEMA gold;
-
+ 
 IF OBJECT_ID('bronze.crm_cust_info','U') IS NOT NULL 
      DROP TABLE bronze.crm_cust_info
 CREATE TABLE bronze.crm_cust_info(
